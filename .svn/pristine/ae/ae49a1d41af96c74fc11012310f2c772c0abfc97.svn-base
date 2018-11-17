@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ui:composition template="template2.xhtml" xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:a="http://www.ambientinformatica.com.br/jsf2" xmlns:p="http://primefaces.org/ui">
+	
+	<ui:define name="corpo">
+		<script type="text/javascript">
+			function handleDrop(event, ui) {
+				var droppedCar = ui.draggable;
+				droppedCar.fadeOut('fast');
+			}
+			
+			PrimeFaces.locales['pt'] = {
+			        closeText: 'Fechar',
+			            prevText: 'Anterior',
+			            nextText: 'Próximo',
+			            currentText: 'Começo',
+			            monthNames: ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'],                         monthNamesShort: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Des'],
+			            dayNames: ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'],
+			            dayNamesShort: ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'],
+			            dayNamesMin: ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'],
+			            weekHeader: 'Semana',
+			            firstDay: 1,
+			            isRTL: false,
+			            showMonthAfterYear: false,
+			            yearSuffix: '',
+			            timeOnlyTitle: 'Só Horas',
+			            timeText: 'Tempo',
+			            hourText: 'Hora',
+			            minuteText: 'Minuto',
+			            secondText: 'Segundo',
+			            ampm: false,
+			            month: 'Mês',
+			            week: 'Semana',
+			            day: 'Dia',
+			            allDayText: 'Todo Dia'
+			        };
+		</script>
+			<p:panel id="pnlGerarProva" header="Gerar prova">
+				<a:newLine/>
+				<a:newLine/>
+				<a:field label="Data da Prova">
+				<h:outputScript library="js" name="locale-primefaces.js"/>
+					<p:calendar id="event" value="#{ProvaControl.prova.data}" locale="pt">
+            <p:ajax event="dateSelect" listener="#{ProvaControl.prova.onDateSelect}" update="buttonConfirmProvaADD" />
+        </p:calendar>
+					
+				</a:field>
+				<a:field label="Instituição" spaceLeft="10px">
+					<p:selectOneMenu id="completInstituicao" value="#{ProvaControl.prova.instituicao}" converter="objectConverter" style="width:230px;" filter="true" filterMatchMode="contains">
+						<f:selectItem id="sltInst" itemLabel="Selecione..." itemValue="" noSelectionOption="true"/>
+						<f:selectItems value="#{ProvaControl.instituicoes}"  var="instituicao" itemLabel="#{instituicao.nomeFantasia}" itemValue="#{instituicao}" />
+						<p:ajax event="keyup" update="buttonConfirmProvaADD" />
+					</p:selectOneMenu>
+				</a:field>
+				<a:field label="Curso" spaceLeft="10px">
+					<p:selectOneMenu id="completCurso" value="#{ProvaControl.prova.curso}" converter="objectConverter" style="width:230px;" filter="true" filterMatchMode="contains">
+						<f:selectItem id="sltCurso" itemLabel="Selecione..." itemValue="" noSelectionOption="true"/>
+						<f:selectItems value="#{ProvaControl.cursos}"  var="curso" itemLabel="#{curso.descricao}" itemValue="#{curso}" />
+						<p:ajax event="keyup" update="buttonConfirmProvaADD" />
+					</p:selectOneMenu>
+				</a:field>
+				<a:field label="Disciplina" spaceLeft="10px">
+					<p:selectOneMenu id="completDisciplina" value="#{ProvaControl.prova.disciplina}" converter="objectConverter" style="width:230px;" filter="true" filterMatchMode="contains">
+						<f:selectItem id="sltDisc" itemLabel="Selecione..." itemValue="" noSelectionOption="true"/>
+						<f:selectItems value="#{ProvaControl.disciplinas}" var="disciplina"  itemLabel="#{disciplina.nome}" itemValue="#{disciplina}" />
+						<p:ajax event="keyup" update="buttonConfirmProvaADD" />
+					</p:selectOneMenu>
+				</a:field>
+				<a:field label="Período" spaceLeft="10px">
+					<p:selectOneMenu id="periodo" value="#{ProvaControl.prova.periodo}" converter="objectConverter" style="width:180px;">
+						<f:selectItem id="sltPeriodo" itemLabel="Selecione..." itemValue="" noSelectionOption="true"/>
+						<f:selectItems value="#{ProvaControl.periodos}"/>
+						<p:ajax event="keyup" update="buttonConfirmProvaADD" />
+					</p:selectOneMenu>
+				</a:field>
+				<a:newLine/>
+				<a:field spaceLeft="10px" rendered="#{ProvaControl.template == null}">
+					<p:commandButton value="Adicionar Nova Sessão" icon="ui-icon-document" actionListener="#{ProvaControl.novaSessao}" process="@this" update=":formCorpo:dlgSessao"/>
+				</a:field>
+			</p:panel>
+			<a:newLine/>
+			<p:panel id="selectedQuestions" header="Sessões adicionadas">
+				<p:outputPanel id="dropArea">
+					<a:newLine />
+					<a:newLine />
+					<h:outputText rendered="#{empty ProvaControl.prova.sessoes}" style="font-size: 24px;" />
+					<p:panel>
+					<p:dataTable id="selectedQuestionsTable" var="sess" value="#{ProvaControl.prova.sessoes}" rendered="#{not empty ProvaControl.prova.sessoes}">
+						<p:subTable var="itemQ" value="#{sess.itensQuestao}">
+							<f:facet name="header">
+								<h:outputText value="#{sess.sessao.titulo}" />
+							</f:facet>
+							<p:column headerText="Enunciado" style="width:260px">
+								<f:facet name="header">
+									<h:outputText value="#{itemQ.questao.questao.enunciado}" />
+								</f:facet>
+								<h:outputText value="#{itemQ.questao.questao.enunciado}" />
+							</p:column>
+							<p:column headerText="Assunto" style="width:260px">
+								<h:outputText value="#{itemQ.questao.questao.assunto}" />
+							</p:column>
+							<p:column headerText="Dificuladede" style="width:160px">
+								<h:outputText value="#{itemQ.questao.questao.dificuldade}" />
+							</p:column>
+						</p:subTable>
+					</p:dataTable>
+					</p:panel>
+				</p:outputPanel>
+				<a:field>
+					<p:commandButton id="buttonConfirmProvaADD" icon="ui-icon-disk" actionListener="#{ProvaControl.confirmarNovaProva}" value="Confirmar" update="@all" />
+				</a:field>
+				<a:field spaceLeft="10px">
+					<p:commandButton value="Cancelar" action="#{ProvaControl.limpar}" partialSubmit="true" process="@this" update="@form"/>
+				</a:field>
+			</p:panel>
+			<a:newLine />
+			
+			
+			<p:dialog id="dlgSessao" modal="true" widgetVar="vCadSessao" header="Sessões" resizable="false">
+			
+				<p:messages autoUpdate="true" closable="true" />
+				<p:panel id="panel">
+				<a:newLine/>
+					<a:newLine />
+					<p:scrollPanel id="sclPanel" mode="native"
+				style="height:500px;;padding: 5px 10px;" rendered="true">
+					<a:field label="Título">
+						<p:inputText value="#{ProvaControl.sessaoTemplate.sessao.titulo}" style="width: 600px">
+							<p:ajax event="keyup" update="buttonConfirm" />
+						</p:inputText>
+					</a:field>
+					<a:newLine />
+					<a:field label="Descrição">
+						<p:inputTextarea value="#{ProvaControl.sessaoTemplate.sessao.descricao}"
+							 style="width: 600px" ><p:ajax event="keyup" update="buttonConfirm" />
+							 </p:inputTextarea>
+					</a:field>
+					<a:newLine/>
+					<p:panel id="pnlQuestao" header="Adicionar questões">
+						<a:newLine/>
+						<a:field label="Questão" spaceLeft="10px">
+							<p:outputLabel id="oupQuestao" value="#{ProvaControl.questaoSelecionada.questao.id} - #{ProvaControl.questaoSelecionada.questao.enunciado}" style="width: 500px"/>
+						</a:field>
+						<a:field label="Pesquisar" spaceLeft="10px">
+							<p:commandButton icon="ui-icon-search" update="tblQuestoes" oncomplete="PF('dlgQuestao').show();"/>
+						</a:field>
+						<a:newLine/>
+						<p:commandButton value="Adicionar" actionListener="#{ProvaControl.adicionarItemQuestao}" update="tblItemSess oupQuestao"/>
+						<a:newLine/>
+						<p:dataTable id="tblItemSess" widgetVar="tblItemSess" var="item" style="width: 600px" value="#{ProvaControl.sessaoTemplate.itensQuestao}" emptyMessage="Sem registros">
+							<p:column headerText="Código" style="width: 60px">
+								<h:outputText value="#{item.questaoTemplate.questao.id }"/>
+							</p:column>
+							<p:column headerText="Enunciado">
+								<h:outputText value="#{item.questaoTemplate.questao.enunciado }"/>
+							</p:column>
+							<p:column headerText="Remover" style="width: 70px; text-align: center">
+								<p:commandButton icon="ui-icon-trash" action="#{ProvaControl.removerItemQuestao(item)}" update=":formCorpo:tblItemSess">
+								</p:commandButton>
+							</p:column>
+						
+						</p:dataTable>
+						
+					</p:panel>
+					<a:newLine/>
+					<p:commandButton id="buttonConfirm" icon="ui-icon-disk" actionListener="#{ProvaControl.confirmarNovaSessaoProva}"  value="Confirmar" update="@form :formCorpo:dlgSessao" ajax="false" oncomplete="vCadSessao.hide();"
+					 disabled="#{empty ProvaControl.sessaoTemplate.sessao.titulo or
+					 			 empty ProvaControl.sessaoTemplate.sessao.descricao or
+					 			 empty ProvaControl.questoesTemplate }">
+						<f:param value="#{ProvaControl.sessaoTemplate}" id="sessaoTemplate"/>
+					</p:commandButton>
+					<p:spacer width="45px" />
+						</p:scrollPanel>
+				</p:panel>
+				<p:ajax event="close" listener="#{ProvaControl.limpar}"/>
+			
+			</p:dialog>
+			
+			<p:dialog header="Questões" widgetVar="dlgQuestao" resizable="true" showEffect="fade" hideEffect="fade" modal="true">
+			
+				<p:panel header="Questões">
+					<a:newLine />
+					<a:newLine />
+					<p:inputText id="pNome" value="#{ProvaControl.filtroDisciplina}" style="width:300px;" placeholder="Filtrar por Disciplina" />
+					<p:commandButton id="Pesquisa" value="Pesquisar" actionListener="#{ProvaControl.filtrarQuestoes }"
+					update="tblQuestoes" icon="ui-icon ui-icon-search"  
+					 />  
+					 <a:newLine />
+					<a:newLine />
+					<p:dataTable id="tblQuestoes" widgetVar="tblQuestoes" var="questaoTemplate" style="width: 1130px" value="#{ProvaControl.questoesTemplate}" emptyMessage="Sem registros" rows="10" paginator="true"
+					currentPageReportTemplate="(Questões nesta página: {endRecord} - Total: {totalRecords} registro(s) - Página: {currentPage}/{totalPages})"
+				paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}">
+						<p:column headerText="Código" style="width: 90px; text-align: center" sortBy="#{questaoTemplate.questao.id}">
+							<h:outputText value="#{questaoTemplate.questao.id}"/>
+						</p:column>
+						<p:column headerText="Assunto" style="width: 280px; text-align: center" sortBy="#{questaoTemplate.questao.assunto}">
+							<h:outputText value="#{questaoTemplate.questao.assunto}"/>
+						</p:column>
+						<p:column headerText="Disciplina" style="width: 200px; text-align: center" sortBy="#{questaoTemplate.questao.disciplina.nome}">
+							<h:outputText value="#{questaoTemplate.questao.disciplina.nome}"/>
+						</p:column>
+						<p:column headerText="Dificuldade" style="width: 120px; text-align: center"  sortBy="#{questaoTemplate.questao.dificuldade}">
+							<h:outputText value="#{questaoTemplate.questao.dificuldade}"/>
+						</p:column>
+						<p:column headerText="Enunciado" style="width: 80px; text-align: center" >
+							<p:commandLink value="Visualizar" action="#{ProvaControl.consultarEnunciadoQuestao(questaoTemplate)}" update=":formCorpo:dlgEnunciado">
+							</p:commandLink>
+						</p:column>
+						<p:column headerText="Imagem" style="width: 80px; text-align: center">
+							<p:commandButton 
+								rendered="#{questaoTemplate.questao.imagem != null }"
+									icon="ui-icon-check"  >
+            				</p:commandButton>
+						</p:column>
+						<p:column headerText="Alternativa" style="width: 80px; text-align: center">
+							<p:commandLink value="Visualizar" action="#{ProvaControl.consultarAlternativasQuestao(questaoTemplate)}" update=":formCorpo:dlQuestao"/>
+						</p:column>
+						<p:column headerText="Resposta" style="width: 100px; text-align: center" sortBy="#{questaoTemplate.questao.resposta}">
+							<h:outputText value="#{questaoTemplate.questao.resposta}"/>
+						</p:column>
+						<p:column headerText="Selecionar" style="width: 100px; text-align: center">
+							<h:commandLink value="Selecionar" actionListener="#{ProvaControl.selecionarQuestao(questaoTemplate)}">
+								<p:ajax update=":formCorpo:oupQuestao" oncomplete="PF('dlgQuestao').hide();"/>
+							</h:commandLink>
+						</p:column>
+					</p:dataTable>
+				
+				</p:panel>
+				
+			</p:dialog>
+			<p:dialog header="Alternativas da questão" widgetVar="dlgAlternativa" minHeight="40" modal="true">
+	    		<p:dataList id="dlQuestao" value="#{ProvaControl.alternativas}" var="alt" type="unordered" itemType="none" rows="10" styleClass="paginated">
+			        <p:panelGrid columns="2" style="margin-bottom: 1px">
+			        	<p:outputLabel value="#{alt.ordem}"/>
+			        	<p:outputLabel value="#{alt.descricao}"/>
+			        </p:panelGrid>
+	    		</p:dataList>
+			</p:dialog>
+			<p:dialog id="dlgEnunciado" header="Enunciado da questão" widgetVar="dlgEnunciado" minHeight="40">
+		        <p:panelGrid columns="2" style="margin-bottom: 1px">
+		        	<p:outputLabel value="#{ProvaControl.enunciado}"/>
+		        </p:panelGrid>
+			</p:dialog>
+				
+			<p:dialog header="Car Detail" widgetVar="queDialog" resizable="false"
+				draggable="false" showEffect="fade" hideEffect="fade" modal="true">
+				<p:outputPanel id="display">
+					<h:panelGrid columns="2" cellpadding="4">
+						<h:outputText value="Enunciado" />
+						<h:outputText
+							value="#{ProvaControl.questaoSelecionada.questao.enunciado}" />
+						<h:outputText value="Assunto" />
+						<h:outputText
+							value="#{ProvaControl.questaoSelecionada.questao.assunto}" />
+						<h:outputText value="Estado" />
+						<h:outputText
+							value="#{ProvaControl.questaoSelecionada.questao.estado}" />
+						<h:outputText value="Dificuldade" />
+						<h:outputText
+							value="#{ProvaControl.questaoSelecionada.questao.dificuldade}" />
+							
+					</h:panelGrid>
+				</p:outputPanel>
+			</p:dialog>
+	
+	</ui:define>
+</ui:composition>

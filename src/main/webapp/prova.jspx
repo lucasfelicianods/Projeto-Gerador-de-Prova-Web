@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ui:composition template="template2.xhtml" xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:a="http://www.ambientinformatica.com.br/jsf2" xmlns:p="http://primefaces.org/ui">
+	<ui:define name="corpo">
+		<style>
+			.controllers{
+				margin-top: 5px;
+				margin-left: 10px;
+			}
+		</style>
+		<p:growl id="messages" life="6000" />
+		<p:panel header="Provas" id="pnlProva">
+			<a:newLine />
+			<a:newLine />
+			<p:dataTable widgetVar="provas" id="dtprovas" value="#{ProvaControl.provas}" var="prova" emptyMessage="Sem registros" rows="20" paginator="true"
+				currentPageReportTemplate="(Questões nesta página: {endRecord} - Total: {totalRecords} registro(s) - Página: {currentPage}/{totalPages})"
+				paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}">
+				<p:column headerText="Código" style="width: 80px; text-align: center" sortBy="#{prova.id}">
+					<h:outputText value="#{prova.id}"/>
+				</p:column>
+				<p:column headerText="Data" style="width: 80px; text-align: center" sortBy="#{prova.data}">
+					<h:outputText value="#{prova.data}">
+						<f:convertDateTime pattern="dd/MM/yyyy"/>
+					</h:outputText>
+				</p:column>
+				<p:column headerText="Instituição" style="text-align: center" sortBy="#{prova.instituicao.nomeFantasia}">
+					<h:outputText value="#{prova.instituicao.nomeFantasia}"/>
+				</p:column>
+				<p:column headerText="Curso" style="text-align: center" sortBy="#{prova.curso.nome}">
+					<h:outputText value="#{prova.curso.nome}"/>
+				</p:column>
+				<p:column headerText="Período" style="width: 120px; text-align: center" sortBy="#{prova.periodo.descricao}">
+					<h:outputText value="#{prova.periodo.descricao}"/>
+				</p:column>
+				<p:column headerText="Disciplina" style="width: 240px; text-align: center" sortBy="#{prova.disciplina.nome}">
+					<h:outputText value="#{prova.disciplina.nome}"/>
+				</p:column>
+				<p:column headerText="Editar" style="width: 80px; text-align: center">
+					<p:commandButton icon="ui-icon-pencil" actionListener="#{ProvaControl.editarProva(prova)}" process="@this" update="@form" style="width: 60px"/>
+				</p:column>
+				<p:column headerText="Imprimir" style="width: 80px; text-align: center">
+					<p:commandButton icon="ui-icon-print" actionListener="#{ProvaControl.imprimirProva(prova)}" ajax="false" style="width: 60px">
+					</p:commandButton>
+				</p:column>
+				<p:column headerText="Cartão Resposta" style="width: 80px; text-align: center">
+					<p:commandButton icon="ui-icon-print" actionListener="#{ProvaControl.imprimirCartaoResposta(prova)}" ajax="false" style="width: 60px">
+					</p:commandButton>
+				</p:column>
+				<p:column headerText="Gabarito resposta" style="width:80px; text-align: center">
+					<p:remoteCommand name="gabaritoResposta"  action="/gerarGabarito.jspx?faces-redirect=true"/>
+					<p:commandButton icon="ui-icon-bookmark" action="#{GabaritoRespostaControl.inicializarItensQuestaoProva}" oncomplete="gabaritoResposta()" style="margin-left: 10%; width: 60px">
+						<f:setPropertyActionListener target="#{GabaritoRespostaControl.prova}" value="#{prova}" />
+					</p:commandButton>					
+				</p:column>
+			</p:dataTable>
+		</p:panel>
+		<p:confirmDialog message="Confirma a exclusão deste registro?" header="Confirmação de exclusão" severity="alert" widgetVar="confirmacaoExclusao">
+			<p:commandButton id="btnSim" value="Sim" oncomplete="PF('confirmacaoExclusao').hide();" actionListener="#{ProvaControl.excluir }" update="dtprovas" />
+			<p:commandButton id="btnNao" value="Não" onclick="PF('confirmacaoExclusao').hide();" type="button" />
+		</p:confirmDialog>
+		<a:newLine />
+	</ui:define>
+</ui:composition>

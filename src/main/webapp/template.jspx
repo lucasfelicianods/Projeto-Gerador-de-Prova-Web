@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ui:composition template="template2.xhtml" xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:a="http://www.ambientinformatica.com.br/jsf2"
+	xmlns:p="http://primefaces.org/ui">
+	<ui:define name="corpo">
+		<p:growl id="messages" life="6000" />
+		<p:panel>
+		<a:newLine/>
+		<a:field>
+			<p:commandButton value="Novo" update="@form" action="#{TemplateControl.limpar}" oncomplete="PF('dlgTemplate').show()" />
+		</a:field>
+		</p:panel>
+		<a:newLine/>
+		<p:panel id="pnLista" header="Lista de modelos de prova">
+			<a:newLine/>
+			<p:dataTable widgetVar="provas" id="dtTemplates" value="#{TemplateControl.templates}" var="tem" emptyMessage="Sem registros" rows="20">
+				<p:column headerText="Código" style="width: 100px">
+					<h:outputText value="#{tem.id}" />
+				</p:column>
+				<p:column headerText="Descrição">
+					<h:outputText value="#{tem.descricao}" />
+				</p:column>
+				<p:column headerText="Editar" style="width: 105px">
+					<p:commandButton icon="ui-icon-pencil" update=":formCorpo:dlgTemplate" oncomplete="PF('dlgTemplate').show()" style="margin-left: 10%; width: 80px">
+						<f:setPropertyActionListener target="#{TemplateControl.templateSelecionada}" value="#{tem}" />
+					</p:commandButton>
+				</p:column>
+				<p:column headerText="Excluir" style="width: 105px">
+					<p:commandButton icon="ui-icon-trash" oncomplete="PF('confirmacao').show()" style="margin-left: 10%; width: 80px">
+						<f:setPropertyActionListener target="#{TemplateControl.templateSelecionada}" value="#{tem}" />
+					</p:commandButton>
+				</p:column>
+				<p:column headerText="Gerar prova" style="width: 105px">
+					<p:remoteCommand name="preencherProva"  action="#{ProvaControl.preencherProva}"/>
+					<p:commandButton icon="ui-icon-bookmark" action="/gerarProva.jspx?faces-redirect=true" onsuccess="preencherProva()" style="margin-left: 10%; width: 80px" update="@all">
+						<f:setPropertyActionListener target="#{ProvaControl.template}" value="#{tem}" />
+					</p:commandButton>
+				</p:column>
+			</p:dataTable>
+		</p:panel>
+		<p:dialog id="dlgTemplate" modal="true" widgetVar="dlgTemplate" header="Cadastro de modelos de prova" resizable="false" width="700">
+			<p:messages autoUpdate="true" closable="true" />
+			<a:newLine/>
+			<a:field label="Descrição">
+				<p:inputText value="#{TemplateControl.templateSelecionada.descricao}" style="width:400px" >
+					<p:ajax event="keyup" update="buttonConfirm" />
+				</p:inputText>
+			</a:field>
+			<a:newLine/>
+			<p:panel id="panel" header="Sessões">
+				<a:newLine/>
+				<a:newLine/>
+				<p:panel id="pnlSessoes">
+				<a:field label="Sessão">
+					<p:autoComplete id="autCompSessao" dropdown="true" value="#{TemplateControl.sessaoItem}" completeMethod="#{TemplateControl.completarSessao}"
+						forceSelection="true" var="item" itemLabel="#{item.sessao.titulo}" itemValue="#{item}" converter="objectConverter">
+					</p:autoComplete>
+				</a:field>
+				<p:spacer width="45px"/>
+				<p:commandButton action="#{TemplateControl.adicionarSessao}" value="Adicionar" update=":formCorpo:dtsessoes :formCorpo:autCompSessao buttonConfirm" oncomplete="PF('dlgTemplate').show()" icon="ui-icon-plusthick" style="margin-top: 30px" />
+				<a:newLine />
+					<a:newLine/>
+					<p:dataTable id="dtsessoes" value="#{TemplateControl.templateSelecionada.sessoes}" var="sess" emptyMessage="Sem registros" rows="10">
+						<p:column headerText="Titulo">
+							<h:outputText value="#{sess.sessao.titulo}" />
+						</p:column>
+						<p:column headerText="Descrição">
+							<h:outputText value="#{sess.sessao.descricao}" />
+						</p:column>
+						<p:column headerText="Remover" style="width: 70px; text-align: center">
+							<p:commandButton icon="ui-icon-trash" action="#{TemplateControl.removerSessao(sess)}" update=":formCorpo:pnlSessoes :formCorpo:buttonConfirm"/>
+						</p:column>
+					</p:dataTable>
+				</p:panel>
+				<a:field>
+					<p:commandButton id="buttonConfirm" icon="ui-icon-plusthick" actionListener="#{TemplateControl.confirmar}" value="Confirmar" update=":formCorpo:pnLista"  oncomplete="dlgTemplate.hide()"
+					disabled="#{empty TemplateControl.templateSelecionada.descricao or 
+							    empty TemplateControl.templateSelecionada.sessoes}" />
+				</a:field>
+				<p:spacer width="45px" />
+				<a:newLine />
+				<a:newLine />
+			</p:panel>
+		</p:dialog>
+		<p:confirmDialog widgetVar="confirmacao"
+			message="Tem Certeza que deseja excluir?" severity="alert"
+			closable="true">
+			<p:commandButton value="Sim"
+				actionListener="#{TemplateControl.excluir}"
+				onclick="confirmacao.hide()" update="pnLista"
+				process="@this" />
+			<p:commandButton value="Não" onclick="confirmacao.hide()" />
+		</p:confirmDialog>
+		<a:newLine />
+		<p:spacer width="25px" />
+	</ui:define>
+</ui:composition>

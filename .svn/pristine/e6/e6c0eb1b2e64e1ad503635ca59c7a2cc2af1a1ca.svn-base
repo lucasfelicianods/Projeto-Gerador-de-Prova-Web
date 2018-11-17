@@ -1,0 +1,17 @@
+package br.com.ambientinformatica.fatesg.sgep.persistencia;
+
+import java.util.List;
+
+import br.com.ambientinformatica.fatesg.api.entidade.Instituicao;
+import br.com.ambientinformatica.jpa.exception.PersistenciaException;
+import br.com.ambientinformatica.jpa.persistencia.Persistencia;
+
+public interface InstituicaoDao extends Persistencia<Instituicao> {
+
+	public List<Instituicao> listarPorNome(String nome);
+
+	public Instituicao consultarPorChaveInstituicaoCorporatum(Integer id);
+
+	List<Instituicao> listarInstituicoes() throws PersistenciaException;
+
+}
